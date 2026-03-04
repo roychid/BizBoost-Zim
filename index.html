@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BizBoost Zim - Business Management for Zimbabwean Entrepreneurs</title>
+    <meta name="description" content="Simple business management tool for Zimbabwean small businesses. Manage bookings, track inquiries, and share your booking link.">
+    
+    <!-- Open Graph / Social Media Meta Tags -->
+    <meta property="og:title" content="BizBoost Zim">
+    <meta property="og:description" content="Manage your small business with ease. Bookings, inquiries, and WhatsApp integration.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://bizboost-zim.vercel.app">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- PWA Support -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#F4ECD8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    
+    <style>
+        /* Consolidated and optimized CSS from original */
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{
+            --paper:#F4ECD8;--paper-dark:#EDE0C4;--paper-mid:#E8D8B8;
+            --ink:#1A0E06;--brick:#A8391A;--brick-light:rgba(168,57,26,0.08);
+            --sage:#4A6741;--muted:#7C6350;--rule:rgba(26,14,6,0.1);--rule-s:rgba(26,14,6,0.22);
+            --white:#FFFDF7;--wa-green:#25D366;
+        }
+        html{background:var(--paper);scroll-behavior:smooth}
+        body{font-family:'Instrument Sans',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;font-size:14px;line-height:1.5}
+        
+        /* Setup Screen */
+        #setup-screen{display:none;position:fixed;inset:0;background:var(--paper);z-index:1000;overflow-y:auto;padding:40px 24px 80px}
+        #setup-screen.show{display:flex;flex-direction:column;align-items:center}
+        .setup-wrap{width:100%;max-width:540px}
+        .setup-logo{font-family:'Fraunces',serif;font-size:28px;font-weight:700;margin-bottom:4px}
+        .setup-logo em{font-style:italic;color:var(--brick)}
+        .setup-tagline{font-size:13px;color:var(--muted);margin-bottom:40px}
+        .setup-section-title{font-size:11px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--muted);padding-bottom:8px;border-bottom:1.5px solid var(--ink);margin-bottom:18px;margin-top:32px}
+        .setup-section-title:first-of-type{margin-top:0}
+        .field-group{margin-bottom:16px}
+        .field-label{font-size:12px;font-weight:600;letter-spacing:0.3px;margin-bottom:6px;display:block;color:var(--ink)}
+        .field-hint{font-size:11px;color:var(--muted);margin-top:4px}
+        input[type=text],input[type=tel],input[type=email],textarea,select{
+            width:100%;padding:12px 14px;border:1.5px solid var(--rule-s);background:var(--white);
+            font-family:'Instrument Sans',sans-serif;font-size:14px;color:var(--ink);
+            outline:none;transition:border-color 0.15s;border-radius:4px;
+        }
+        input[type=text]:focus,input[type=tel]:focus,input[type=email]:focus,textarea:focus,select:focus{border-color:var(--ink)}
+        textarea{min-height:80px;resize:vertical}
+        .services-setup-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+        .svc-setup-row{display:grid;grid-template-columns:1fr 120px 40px;gap:8px;align-items:center}
+        .svc-setup-row input{padding:10px 12px;font-size:13px}
+        .btn-add-svc{background:none;border:1.5px dashed var(--rule-s);width:100%;padding:11px;font-family:'Instrument Sans',sans-serif;font-size:13px;color:var(--muted);cursor:pointer;transition:all 0.15s;border-radius:4px}
+        .btn-add-svc:hover{border-color:var(--ink);color:var(--ink)}
+        .btn-remove{background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;line-height:1;padding:0 6px;transition:color 0.15s}
+        .btn-remove:hover{color:var(--brick)}
+        .btn-setup-submit{width:100%;padding:15px;background:var(--ink);color:var(--paper);border:none;font-family:'Instrument Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.15s;margin-top:32px;letter-spacing:0.3px;border-radius:4px}
+        .btn-setup-submit:hover{background:var(--brick)}
+        
+        /* Header */
+        .site-header{padding:0 40px;border-bottom:2px solid var(--ink);display:grid;grid-template-columns:1fr auto;align-items:stretch}
+        .brand{padding:18px 0;border-right:1px solid var(--rule-s);padding-right:32px}
+        .brand-name{font-family:'Fraunces',serif;font-size:21px;font-weight:700;letter-spacing:-0.3px;line-height:1;margin-bottom:3px}
+        .brand-name em{font-style:italic;font-weight:400;color:var(--brick)}
+        .brand-sub{font-size:11px;color:var(--muted);letter-spacing:1.6px;text-transform:uppercase;font-weight:500}
+        .header-right{display:flex;align-items:center}
+        .wa-btn{display:flex;align-items:center;gap:8px;background:var(--wa-green);color:white;text-decoration:none;padding:0 24px;font-family:'Instrument Sans',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.2px;transition:background 0.15s;height:100%}
+        .wa-btn:hover{background:#20b858}
+        .settings-btn{display:flex;align-items:center;gap:6px;background:none;border:none;border-left:1px solid var(--rule-s);padding:0 20px;cursor:pointer;font-family:'Instrument Sans',sans-serif;font-size:12px;font-weight:500;color:var(--muted);height:100%;transition:color 0.15s}
+        .settings-btn:hover{color:var(--ink)}
+        
+        /* Navigation */
+        .site-nav{display:flex;padding:0 40px;border-bottom:1px solid var(--rule-s);overflow-x:auto;scrollbar-width:thin}
+        .nav-item{padding:13px 0;margin-right:32px;font-size:11px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;color:var(--muted);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color 0.15s;white-space:nowrap;font-family:'Instrument Sans',sans-serif}
+        .nav-item:hover{color:var(--ink)}
+        .nav-item.on{color:var(--ink);border-bottom-color:var(--brick)}
+        
+        /* Panels */
+        .panel{display:none;animation:appear 0.2s ease}
+        .panel.on{display:block}
+        @keyframes appear{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+        
+        /* Dashboard */
+        .dash-wrap{display:grid;grid-template-columns:1fr 300px;min-height:calc(100vh - 90px)}
+        .dash-main{padding:36px 40px;border-right:1px solid var(--rule-s)}
+        .dash-side{padding:28px 24px}
+        .stat-strip{display:flex;gap:0;border:1px solid var(--rule-s);margin-bottom:36px;overflow:hidden;border-radius:4px}
+        .stat-block{flex:1;padding:18px 20px;border-right:1px solid var(--rule-s);transition:background 0.15s;cursor:default}
+        .stat-block:last-child{border-right:none}
+        .stat-block:hover{background:var(--paper-dark)}
+        .stat-num{font-family:'Fraunces',serif;font-size:34px;font-weight:600;line-height:1;margin-bottom:4px}
+        .stat-num.red{color:var(--brick)}
+        .stat-label{font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);font-weight:600}
+        .s-head{display:flex;align-items:baseline;gap:12px;margin-bottom:14px}
+        .s-head h2{font-family:'Fraunces',serif;font-size:17px;font-weight:600;font-style:italic}
+        .s-head .count{font-size:11px;color:var(--muted);font-weight:500}
+        .s-head .add-btn{margin-left:auto;background:none;border:1px solid var(--rule-s);padding:5px 12px;font-family:'Instrument Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.5px;color:var(--muted);cursor:pointer;transition:all 0.15s;border-radius:4px}
+        .s-head .add-btn:hover{border-color:var(--ink);color:var(--ink)}
+        
+        /* Price List */
+        .price-list{border-top:1px solid var(--rule-s);margin-bottom:36px}
+        .price-row{display:flex;align-items:center;padding:12px 0;border-bottom:1px solid var(--rule);gap:10px;position:relative}
+        .pr-dot{width:5px;height:5px;border-radius:50%;background:var(--muted);flex-shrink:0}
+        .pr-name{font-weight:500;flex:1;font-size:14px}
+        .pr-orders{font-size:11px;color:var(--muted);margin-right:4px}
+        .pr-price{font-family:'Fraunces',serif;font-size:15px;font-weight:600;white-space:nowrap}
+        .pr-actions{display:flex;gap:4px;opacity:0;transition:opacity 0.15s}
+        .price-row:hover .pr-actions{opacity:1}
+        .pr-edit,.pr-del{background:none;border:none;cursor:pointer;font-size:12px;padding:3px 6px;color:var(--muted);transition:color 0.15s;font-family:'Instrument Sans',sans-serif}
+        .pr-edit:hover{color:var(--ink)}
+        .pr-del:hover{color:var(--brick)}
+        
+        /* Inquiries */
+        .inq-list{border-top:1px solid var(--rule-s)}
+        .inq-row{display:flex;align-items:flex-start;gap:12px;padding:13px 0;border-bottom:1px solid var(--rule);cursor:pointer;transition:background 0.12s;position:relative}
+        .inq-row:hover{background:rgba(26,14,6,0.02);padding-left:4px}
+        .inq-init{width:33px;height:33px;border-radius:50%;border:1.5px solid var(--rule-s);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;color:var(--muted)}
+        .inq-row.fresh .inq-init{background:var(--brick);border-color:var(--brick);color:white}
+        .inq-text{flex:1;min-width:0}
+        .inq-name{font-weight:600;font-size:13px;margin-bottom:2px}
+        .inq-msg{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px}
+        .inq-meta{text-align:right;flex-shrink:0}
+        .inq-time{font-size:11px;color:var(--muted);margin-bottom:4px}
+        .tag-new{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--brick)}
+        .tag-done{font-size:10px;font-weight:600;color:var(--sage)}
+        .inq-actions{position:absolute;right:0;bottom:14px;display:flex;gap:4px;opacity:0;transition:opacity 0.15s}
+        .inq-row:hover .inq-actions{opacity:1}
+        .inq-act-btn{background:var(--paper-dark);border:1px solid var(--rule-s);padding:3px 8px;font-family:'Instrument Sans',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.3px;cursor:pointer;transition:all 0.15s;border-radius:3px}
+        .inq-act-btn:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+        .inq-act-del:hover{background:var(--brick);border-color:var(--brick)}
+        .empty-state{padding:28px 0;color:var(--muted);font-size:13px;font-style:italic;border-bottom:1px solid var(--rule)}
+        
+        /* Sidebar Calendar */
+        .side-label{font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--rule-s);display:flex;justify-content:space-between;align-items:center}
+        .side-section{margin-bottom:28px}
+        .cal{width:100%}
+        .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+        .cal-month{font-family:'Fraunces',serif;font-size:15px;font-weight:600}
+        .cal-arrow{background:none;border:1px solid var(--rule-s);width:26px;height:26px;cursor:pointer;font-size:13px;transition:all 0.15s;display:flex;align-items:center;justify-content:center;border-radius:4px}
+        .cal-arrow:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+        .cal-dh{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:4px}
+        .cal-dh span{text-align:center;font-size:9px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--muted);padding:3px 0}
+        .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+        .cd{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;border-radius:3px;cursor:pointer;transition:all 0.1s;min-height:28px;position:relative}
+        .cd.emp{cursor:default}
+        .cd.pst{color:rgba(26,14,6,0.2);cursor:default}
+        .cd.avl{background:rgba(74,103,65,0.1);color:var(--sage)}
+        .cd.avl:hover{background:rgba(74,103,65,0.22)}
+        .cd.bkd{background:rgba(168,57,26,0.12);color:var(--brick);font-weight:700}
+        .cd.bkd::after{content:'';position:absolute;bottom:2px;width:3px;height:3px;border-radius:50%;background:var(--brick)}
+        .cd.tdy{background:var(--ink);color:var(--paper);font-weight:700}
+        .cal-key{display:flex;gap:12px;margin-top:8px;flex-wrap:wrap}
+        .cal-key-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)}
+        .cal-key-dot{width:7px;height:7px;border-radius:2px}
+        
+        /* Buttons */
+        .demo-cta{width:100%;padding:12px;background:var(--ink);color:var(--paper);border:none;font-family:'Instrument Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;letter-spacing:0.3px;transition:background 0.15s;border-radius:4px}
+        .demo-cta:hover{background:var(--brick)}
+        .btn-ink{width:100%;padding:14px;background:var(--ink);color:var(--paper);border:none;font-family:'Instrument Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.15s;letter-spacing:0.2px;margin-top:20px;border-radius:4px}
+        .btn-ink:hover{background:var(--brick)}
+        .btn-ink:disabled{opacity:0.3;cursor:not-allowed;background:var(--ink)}
+        
+        /* Modals */
+        .modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,14,6,0.5);z-index:200;align-items:center;justify-content:center;padding:20px}
+        .modal-overlay.show{display:flex}
+        .modal{background:var(--paper);padding:32px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;border-radius:8px}
+        .modal h3{font-family:'Fraunces',serif;font-size:22px;font-weight:700;margin-bottom:20px}
+        .modal-row{margin-bottom:14px}
+        .modal-row label{display:block;font-size:12px;font-weight:600;margin-bottom:6px;letter-spacing:0.3px}
+        .modal-actions{display:flex;gap:8px;margin-top:22px}
+        .btn-modal-ok{flex:1;padding:12px;background:var(--ink);color:var(--paper);border:none;font-family:'Instrument Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:background 0.15s;border-radius:4px}
+        .btn-modal-ok:hover{background:var(--brick)}
+        .btn-modal-cancel{padding:12px 20px;background:none;border:1px solid var(--rule-s);font-family:'Instrument Sans',sans-serif;font-size:13px;color:var(--muted);cursor:pointer;transition:all 0.15s;border-radius:4px}
+        .btn-modal-cancel:hover{border-color:var(--ink);color:var(--ink)}
+        
+        /* Booking Link Panel */
+        .link-panel{max-width:660px;margin:0 auto;padding:44px 40px}
+        .link-headline{font-family:'Fraunces',serif;font-size:clamp(32px,5vw,52px);font-weight:700;line-height:1.05;margin-bottom:10px;letter-spacing:-0.5px}
+        .link-headline em{font-style:italic;color:var(--brick)}
+        .link-desc{color:var(--muted);font-size:14px;line-height:1.7;margin-bottom:28px;max-width:460px}
+        .link-field-wrap{border:1.5px solid var(--ink);display:flex;margin-bottom:36px;overflow:hidden;border-radius:4px}
+        .link-field-url{flex:1;padding:14px 18px;font-family:monospace;font-size:13px;color:var(--ink);background:var(--white);border:none;outline:none;letter-spacing:0.3px}
+        .link-copy-btn{background:var(--ink);color:var(--paper);border:none;padding:0 22px;font-family:'Instrument Sans',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:background 0.15s;white-space:nowrap}
+        .link-copy-btn:hover{background:var(--brick)}
+        .share-row{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--rule-s);overflow:hidden;margin-bottom:36px;border-radius:4px}
+        .share-cell{padding:20px 14px;text-align:center;border-right:1px solid var(--rule-s);cursor:pointer;transition:background 0.15s}
+        .share-cell:last-child{border-right:none}
+        .share-cell:hover{background:var(--paper-dark)}
+        .share-cell .sc-icon{font-size:22px;margin-bottom:7px;display:block}
+        .share-cell .sc-name{font-size:12px;font-weight:600;margin-bottom:2px}
+        .share-cell .sc-hint{font-size:10px;color:var(--muted)}
+        
+        /* WhatsApp Mock */
+        .wa-preview-label{font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;padding-bottom:8px;border-bottom:1.5px solid var(--ink)}
+        .wa-mock{background:#111B21;border-radius:10px;overflow:hidden}
+        .wa-mock-bar{background:#1F2C34;padding:12px 16px;display:flex;align-items:center;gap:10px}
+        .wa-mock-av{width:34px;height:34px;border-radius:50%;background:var(--brick);display:flex;align-items:center;justify-content:center;font-size:15px;color:white;font-weight:700;font-family:'Fraunces',serif}
+        .wa-mock-name{font-size:13px;font-weight:600;color:white;margin-bottom:1px}
+        .wa-mock-status{font-size:10px;color:#8696A0}
+        .wa-mock-body{padding:18px;background:#111B21}
+        .wa-bubble{background:#1F2C34;border-radius:2px 12px 12px 12px;padding:12px 14px;max-width:85%;font-size:13px;line-height:1.6;color:#E9EDE9}
+        .wa-bubble .wa-time{font-size:10px;color:#8696A0;text-align:right;margin-top:5px}
+        .wa-note{font-size:11px;color:var(--muted);margin-top:10px;text-align:center}
+        
+        /* Client Flow */
+        .flow-outer{max-width:520px;margin:0 auto;padding:44px 24px}
+        .flow-progress{display:flex;align-items:center;margin-bottom:44px}
+        .fp-step{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;position:relative}
+        .fp-step::after{content:'';position:absolute;top:12px;left:50%;width:100%;height:1px;background:var(--rule-s)}
+        .fp-step:last-child::after{display:none}
+        .fp-num{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--rule-s);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--muted);background:var(--paper);position:relative;z-index:1;transition:all 0.2s}
+        .fp-step.on .fp-num{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+        .fp-step.done .fp-num{background:var(--sage);border-color:var(--sage);color:white}
+        .fp-label{font-size:9px;letter-spacing:0.5px;color:var(--muted);text-align:center;font-weight:600;text-transform:uppercase;letter-spacing:1px}
+        .fp-step.on .fp-label{color:var(--ink)}
+        .flow-section{display:none;animation:appear 0.25s ease}
+        .flow-section.on{display:block}
+        .flow-title{font-family:'Fraunces',serif;font-size:26px;font-weight:700;margin-bottom:5px;letter-spacing:-0.3px}
+        .flow-sub{font-size:13px;color:var(--muted);margin-bottom:26px}
+        .svc-pick-list{border-top:1.5px solid var(--ink);margin-bottom:24px}
+        .svc-pick-row{display:flex;align-items:center;padding:14px 0;border-bottom:1px solid var(--rule);cursor:pointer;gap:12px;transition:padding-left 0.15s;position:relative}
+        .svc-pick-row:hover{padding-left:5px}
+        .svc-pick-row.sel{background:var(--brick-light);padding-left:14px;margin:0 -14px;padding-right:14px;border-bottom-color:rgba(168,57,26,0.15)}
+        .svc-pick-row.sel .spr-name{color:var(--brick)}
+        .spr-name{font-weight:600;font-size:14px;flex:1;transition:color 0.15s}
+        .spr-price{font-family:'Fraunces',serif;font-size:15px;font-weight:600;color:var(--muted)}
+        .svc-pick-row.sel .spr-price{color:var(--brick)}
+        .spr-check{width:19px;height:19px;border-radius:50%;background:var(--brick);color:white;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;opacity:0;transition:opacity 0.15s;flex-shrink:0}
+        .svc-pick-row.sel .spr-check{opacity:1}
+        .time-date-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin:18px 0 8px}
+        .time-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:5px}
+        .tslot{padding:11px 8px;text-align:center;border:1.5px solid var(--rule-s);font-size:13px;font-weight:500;cursor:pointer;transition:all 0.15s;background:var(--white);border-radius:4px}
+        .tslot:hover{border-color:var(--ink);background:var(--paper)}
+        .tslot.sel{border-color:var(--brick);background:var(--brick);color:white;font-weight:600}
+        .tslot.taken{border-color:var(--rule);color:rgba(26,14,6,0.22);cursor:not-allowed;text-decoration:line-through;background:var(--paper)}
+        .btn-wa-send{width:100%;padding:14px;background:var(--wa-green);color:white;border:none;font-family:'Instrument Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.15s;display:flex;align-items:center;justify-content:center;gap:9px;text-decoration:none;margin-top:20px;border-radius:4px}
+        .btn-wa-send:hover{background:#20b858}
+        .btn-back{width:100%;padding:11px;background:none;border:1px solid var(--rule-s);font-family:'Instrument Sans',sans-serif;font-size:13px;color:var(--muted);cursor:pointer;transition:all 0.15s;margin-top:7px;border-radius:4px}
+        .btn-back:hover{border-color:var(--ink);color:var(--ink)}
+        .flow-wa{border:1px solid var(--rule-s);overflow:hidden;margin:20px 0 4px;border-radius:8px}
+        .flow-success{text-align:center;padding:20px 0}
+        .success-mark{width:60px;height:60px;border:2px solid var(--sage);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 18px;animation:popIn 0.4s ease}
+        @keyframes popIn{0%{transform:scale(0.5);opacity:0}80%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+        .flow-success h3{font-family:'Fraunces',serif;font-size:24px;font-weight:700;margin-bottom:6px}
+        .flow-success p{color:var(--muted);font-size:13px;margin-bottom:24px;line-height:1.7}
+        .receipt{border:1.5px solid var(--rule-s);margin-bottom:22px;text-align:left;border-radius:4px}
+        .receipt-head{background:var(--paper-dark);padding:9px 16px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--rule-s)}
+        .receipt-row{display:flex;justify-content:space-between;padding:11px 16px;border-bottom:1px solid var(--rule);font-size:13px}
+        .receipt-row:last-child{border-bottom:none}
+        .receipt-row span:first-child{color:var(--muted)}
+        .receipt-row span:last-child{font-weight:600}
+        
+        /* Analytics */
+        .ana-outer{padding:36px 40px}
+        .ana-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:36px}
+        .ana-box{border:1px solid var(--rule-s);padding:22px;border-radius:4px}
+        .ana-box-title{font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--muted);margin-bottom:18px;padding-bottom:9px;border-bottom:1px solid var(--rule-s)}
+        .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+        .bar-row:last-child{margin-bottom:0}
+        .bar-name{font-size:12px;font-weight:500;width:100px;flex-shrink:0}
+        .bar-track-wrap{flex:1}
+        .bar-track{height:5px;background:var(--paper-dark);border-radius:2px;overflow:hidden;margin-bottom:2px}
+        .bar-fill{height:100%;border-radius:2px;transition:width 1s ease}
+        .bar-val{font-size:10px;color:var(--muted);font-weight:600;text-align:right}
+        .pop-item{display:flex;align-items:center;gap:14px;padding:14px;background:var(--paper-dark);margin-bottom:14px;border-left:3px solid var(--brick);border-radius:4px}
+        .pop-em{font-size:30px}
+        .pop-title{font-family:'Fraunces',serif;font-size:17px;font-weight:700;margin-bottom:2px}
+        .pop-detail{font-size:11px;color:var(--muted)}
+        .ledger{border:1px solid var(--rule-s);overflow:hidden;border-radius:4px}
+        .ledger-head{display:grid;grid-template-columns:1fr 1fr auto auto;padding:9px 18px;background:var(--ink);color:var(--paper);font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;gap:14px}
+        .ledger-row{display:grid;grid-template-columns:1fr 1fr auto auto;padding:12px 18px;border-bottom:1px solid var(--rule);font-size:13px;gap:14px;align-items:center;transition:background 0.12s;cursor:pointer;position:relative}
+        .ledger-row:last-child{border-bottom:none}
+        .ledger-row:hover{background:var(--paper-dark)}
+        .lr-name{font-weight:600}
+        .lr-svc{color:var(--muted);font-size:11px;margin-top:1px}
+        .lr-amount{font-family:'Fraunces',serif;font-size:14px;font-weight:600;text-align:right}
+        .status-badge{font-size:9px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;padding:3px 7px;white-space:nowrap;border-radius:3px}
+        .status-badge.ok{background:rgba(74,103,65,0.1);color:var(--sage)}
+        .status-badge.wait{background:rgba(168,57,26,0.08);color:var(--brick)}
+        .ledger-del{position:absolute;right:18px;opacity:0;transition:opacity 0.15s;background:none;border:none;cursor:pointer;color:var(--muted);font-size:13px}
+        .ledger-row:hover .ledger-del{opacity:1}
+        
+        /* Toast */
+        .toast{position:fixed;bottom:22px;right:22px;background:var(--ink);color:var(--paper);padding:12px 18px;font-size:13px;font-weight:500;box-shadow:0 8px 28px rgba(0,0,0,0.2);transform:translateY(60px);opacity:0;transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);z-index:9999;letter-spacing:0.2px;border-radius:4px}
+        .toast.show{transform:translateY(0);opacity:1}
+        
+        /* Footer */
+        .app-footer{margin-top:40px;padding:20px;text-align:center;border-top:1px solid var(--rule-s);color:var(--muted);font-size:11px}
+        
+        /* Responsive */
+        @media(max-width:800px){
+            .site-header,.site-nav,.dash-main,.ana-outer,.link-panel{padding-left:18px;padding-right:18px}
+            .dash-wrap{grid-template-columns:1fr}
+            .dash-side{border-top:1px solid var(--rule-s);padding:22px 18px}
+            .ana-grid{grid-template-columns:1fr}
+            .ledger-head,.ledger-row{grid-template-columns:1fr auto auto}
+            .ledger-head span:nth-child(2),.lr-svc{display:none}
+            .share-row{grid-template-columns:repeat(2,1fr)}
+            .share-cell:nth-child(2){border-right:none}
+            .share-cell:nth-child(1),.share-cell:nth-child(2){border-bottom:1px solid var(--rule-s)}
+            .stat-strip{flex-wrap:wrap}
+            .stat-block{min-width:50%;border-bottom:1px solid var(--rule-s)}
+            .svc-setup-row{grid-template-columns:1fr 100px 36px}
+            .brand{border-right:none}
+            .header-right .wa-btn span{display:none}
+            .wa-btn{padding:0 16px}
+        }
+    </style>
+</head>
+<body>
+
+<!-- SETUP SCREEN -->
+<div id="setup-screen">
+    <div class="setup-wrap">
+        <div class="setup-logo">BizBoost <em>Zim</em></div>
+        <div class="setup-tagline">Set up your business once. Use it forever.</div>
+
+        <div class="setup-section-title">Your Business</div>
+        <div class="field-group">
+            <label class="field-label">Business Name</label>
+            <input type="text" id="su-biz-name" placeholder="e.g. Cakes & Crumb by Marvel" autocomplete="organization">
+        </div>
+        <div class="field-group">
+            <label class="field-label">WhatsApp Number (with country code)</label>
+            <input type="tel" id="su-wa-num" placeholder="e.g. 2637712345678" autocomplete="tel">
+            <div class="field-hint">Used to generate your booking link. Clients message you directly.</div>
+        </div>
+        <div class="field-group">
+            <label class="field-label">Email (optional)</label>
+            <input type="email" id="su-email" placeholder="e.g. hello@mybusiness.co.zw" autocomplete="email">
+        </div>
+        <div class="field-group">
+            <label class="field-label">Location</label>
+            <input type="text" id="su-location" placeholder="e.g. Harare, Zimbabwe" autocomplete="address-level2">
+        </div>
+
+        <div class="setup-section-title">Your Services & Prices</div>
+        <div class="services-setup-list" id="su-svc-list"></div>
+        <button class="btn-add-svc" id="add-service-btn">+ Add Service</button>
+
+        <div class="setup-section-title">Currency</div>
+        <div class="field-group">
+            <select id="su-currency">
+                <option value="USD">USD ($)</option>
+                <option value="ZWL">ZWL (ZiG)</option>
+                <option value="ZAR">ZAR (R)</option>
+            </select>
+        </div>
+
+        <button class="btn-setup-submit" id="save-setup-btn">Save & Open Dashboard →</button>
+        <p style="text-align:center; margin-top:20px; font-size:11px; color:var(--muted);">All data is stored locally in your browser. No servers, no tracking.</p>
+    </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" style="display:none">
+    <header class="site-header">
+        <div class="brand">
+            <div class="brand-name" id="header-biz-name">My Business</div>
+            <div class="brand-sub" id="header-location">BizBoost Zim</div>
+        </div>
+        <div class="header-right">
+            <a class="wa-btn" id="header-wa-btn" href="#" target="_blank" rel="noopener noreferrer">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.12 1.524 5.855L0 24l6.336-1.508A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.89 0-3.666-.516-5.187-1.415l-.37-.221-3.762.895.953-3.67-.243-.383A9.958 9.958 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+                <span>WhatsApp</span>
+            </a>
+            <button class="settings-btn" id="settings-btn" aria-label="Settings">⚙ Settings</button>
+        </div>
+    </header>
+
+    <nav class="site-nav" aria-label="Main navigation">
+        <button class="nav-item on" data-tab="dash">Dashboard</button>
+        <button class="nav-item" data-tab="link">Booking Link</button>
+        <button class="nav-item" data-tab="flow">Client View</button>
+        <button class="nav-item" data-tab="analytics">Analytics</button>
+    </nav>
+
+    <!-- DASHBOARD PANEL -->
+    <div id="dash" class="panel on">
+        <div class="dash-wrap">
+            <div class="dash-main">
+                <div class="stat-strip" id="stat-strip">
+                    <div class="stat-block"><div class="stat-num" id="stat-bookings">0</div><div class="stat-label">Bookings this month</div></div>
+                    <div class="stat-block"><div class="stat-num red" id="stat-revenue">$0</div><div class="stat-label">Revenue this month</div></div>
+                    <div class="stat-block"><div class="stat-num" id="stat-inquiries">0</div><div class="stat-label">Unread inquiries</div></div>
+                    <div class="stat-block"><div class="stat-num" id="stat-pending">0</div><div class="stat-label">Pending bookings</div></div>
+                </div>
+
+                <div class="s-head">
+                    <h2>Services & Pricing</h2>
+                    <span class="count" id="svc-count"></span>
+                    <button class="add-btn" id="edit-services-btn">Edit Services</button>
+                </div>
+                <div class="price-list" id="price-list"></div>
+
+                <div class="s-head" style="margin-top:36px">
+                    <h2>Inquiries & Messages</h2>
+                    <span class="count" id="inq-count"></span>
+                    <button class="add-btn" id="add-inquiry-btn">+ Add Inquiry</button>
+                </div>
+                <div class="inq-list" id="inq-list"></div>
+            </div>
+
+            <div class="dash-side">
+                <div class="side-section">
+                    <div class="side-label">
+                        <span id="cal-month-label">Month</span>
+                    </div>
+                    <div class="cal">
+                        <div class="cal-nav">
+                            <button class="cal-arrow" id="cal-prev" aria-label="Previous month">‹</button>
+                            <span class="cal-month" id="cal-title"></span>
+                            <button class="cal-arrow" id="cal-next" aria-label="Next month">›</button>
+                        </div>
+                        <div class="cal-dh"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>
+                        <div class="cal-grid" id="calGrid"></div>
+                    </div>
+                    <div class="cal-key">
+                        <div class="cal-key-item"><div class="cal-key-dot" style="background:var(--ink)"></div>Today</div>
+                        <div class="cal-key-item"><div class="cal-key-dot" style="background:rgba(168,57,26,0.4)"></div>Booked</div>
+                        <div class="cal-key-item"><div class="cal-key-dot" style="background:rgba(74,103,65,0.3)"></div>Open</div>
+                    </div>
+                </div>
+
+                <div class="side-section">
+                    <div class="side-label">Add Booking</div>
+                    <p style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px">Record a new booking — it will appear on the calendar and ledger.</p>
+                    <button class="demo-cta" id="new-booking-btn">+ New Booking</button>
+                </div>
+
+                <div class="side-section">
+                    <div class="side-label">Client Booking View</div>
+                    <p style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px">Share this with clients so they can book themselves.</p>
+                    <button class="demo-cta" style="background:var(--brick)" id="open-client-view">Open Client View →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOOKING LINK PANEL -->
+    <div id="link" class="panel">
+        <div class="link-panel">
+            <h1 class="link-headline">Your <em>one</em> link<br>for everything.</h1>
+            <p class="link-desc">Share it on Instagram, Facebook, TikTok, or WhatsApp Status. Clients click, WhatsApp opens with a pre-filled message. They just hit send.</p>
+            <div class="link-field-wrap">
+                <input class="link-field-url" id="link-url-field" type="text" readonly aria-label="Your booking link">
+                <button class="link-copy-btn" id="copy-link-btn">Copy</button>
+            </div>
+            <div style="font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--rule-s)">Share to</div>
+            <div class="share-row">
+                <button class="share-cell" data-platform="instagram"><span class="sc-icon">📸</span><div class="sc-name">Instagram</div><div class="sc-hint">Bio or Story</div></button>
+                <button class="share-cell" data-platform="facebook"><span class="sc-icon">📘</span><div class="sc-name">Facebook</div><div class="sc-hint">Post or Marketplace</div></button>
+                <button class="share-cell" data-platform="tiktok"><span class="sc-icon">🎵</span><div class="sc-name">TikTok</div><div class="sc-hint">Bio link</div></button>
+                <button class="share-cell" data-platform="whatsapp"><span class="sc-icon">💚</span><div class="sc-name">WhatsApp</div><div class="sc-hint">Status</div></button>
+            </div>
+            <div class="wa-preview-label">What clients see when they tap your link</div>
+            <div class="wa-mock">
+                <div class="wa-mock-bar">
+                    <div class="wa-mock-av" id="wa-prev-init">M</div>
+                    <div><div class="wa-mock-name" id="wa-prev-name">My Business</div><div class="wa-mock-status">online</div></div>
+                </div>
+                <div class="wa-mock-body">
+                    <div class="wa-bubble" id="wa-prev-msg">Hi! I'd like to place an order. Could you please let me know your availability?<div class="wa-time">now ✓✓</div></div>
+                </div>
+            </div>
+            <p class="wa-note">Client just taps <strong>Send</strong> — message is already written.</p>
+        </div>
+    </div>
+
+    <!-- CLIENT FLOW PANEL -->
+    <div id="flow" class="panel">
+        <div class="flow-outer">
+            <div class="flow-progress">
+                <div class="fp-step on" id="fps1"><div class="fp-num" id="fpn1">1</div><div class="fp-label">Service</div></div>
+                <div class="fp-step" id="fps2"><div class="fp-num" id="fpn2">2</div><div class="fp-label">Time</div></div>
+                <div class="fp-step" id="fps3"><div class="fp-num" id="fpn3">3</div><div class="fp-label">Confirm</div></div>
+                <div class="fp-step" id="fps4"><div class="fp-num" id="fpn4">4</div><div class="fp-label">Sent</div></div>
+            </div>
+
+            <div class="flow-section on" id="fss1">
+                <div class="flow-title">What would you like to order?</div>
+                <div class="flow-sub" id="flow-biz-name-sub">Select a service</div>
+                <div class="svc-pick-list" id="flow-svc-list"></div>
+                <button class="btn-ink" id="btn1" disabled onclick="goStep(2)">Choose Date & Time →</button>
+            </div>
+
+            <div class="flow-section" id="fss2">
+                <div class="flow-title">When do you need it?</div>
+                <div class="flow-sub">Struck-through slots are already taken</div>
+                <div id="flow-time-slots"></div>
+                <button class="btn-ink" id="btn2" disabled onclick="goStep(3)">Preview WhatsApp Message →</button>
+                <button class="btn-back" onclick="goStep(1)">← Back</button>
+            </div>
+
+            <div class="flow-section" id="fss3">
+                <div class="flow-title">Your message is ready.</div>
+                <div class="flow-sub">WhatsApp will open with this — just tap Send</div>
+                <div class="flow-wa wa-mock">
+                    <div class="wa-mock-bar">
+                        <div class="wa-mock-av" id="flow-wa-init">M</div>
+                        <div><div class="wa-mock-name" id="flow-wa-name">Business</div><div class="wa-mock-status">online</div></div>
+                    </div>
+                    <div class="wa-mock-body">
+                        <div class="wa-bubble">Hi! I'd like to order <strong id="mSvc">a service</strong> for <strong id="mTime">a time</strong>. Please confirm availability and share any details. Thank you!<div class="wa-time">now</div></div>
+                    </div>
+                </div>
+                <a class="btn-wa-send" id="waLink" href="#" target="_blank" rel="noopener noreferrer">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.12 1.524 5.855L0 24l6.336-1.508A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.89 0-3.666-.516-5.187-1.415l-.37-.221-3.762.895.953-3.67-.243-.383A9.958 9.958 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+                    Open WhatsApp & Send
+                </a>
+                <button class="btn-back" onclick="goStep(2)">← Change time</button>
+            </div>
+
+            <div class="flow-section" id="fss4">
+                <div class="flow-success">
+                    <div class="success-mark">✓</div>
+                    <h3>Booking Request Sent</h3>
+                    <p id="flow-success-msg">Your message has been sent. You'll receive a confirmation shortly.</p>
+                    <div class="receipt">
+                        <div class="receipt-head">Order Summary</div>
+                        <div class="receipt-row"><span>Service</span><span id="rSvc">—</span></div>
+                        <div class="receipt-row"><span>Date & Time</span><span id="rTime">—</span></div>
+                        <div class="receipt-row"><span>Status</span><span style="color:var(--brick)">Awaiting confirmation</span></div>
+                    </div>
+                    <button class="btn-ink" onclick="resetFlow()">Start New Order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ANALYTICS PANEL -->
+    <div id="analytics" class="panel">
+        <div class="ana-outer">
+            <div class="ana-grid">
+                <div class="ana-box">
+                    <div class="ana-box-title">Top Seller This Month</div>
+                    <div id="ana-top-seller"><div class="pop-item"><div class="pop-em">📊</div><div><div class="pop-title">No bookings yet</div><div class="pop-detail">Add bookings to see analytics</div></div></div></div>
+                    <div id="ana-svc-bars"></div>
+                </div>
+                <div class="ana-box">
+                    <div class="ana-box-title">This Month at a Glance</div>
+                    <div id="ana-summary"></div>
+                </div>
+            </div>
+            <div class="s-head"><h2>Booking Ledger</h2><span class="count" id="ledger-count"></span></div>
+            <div class="ledger">
+                <div class="ledger-head"><span>Client</span><span>Service</span><span>Amount</span><span>Status</span></div>
+                <div id="ledger-body"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="app-footer">
+        <p>BizBoost Zim — All data stored locally in your browser. No servers, no tracking.</p>
+    </footer>
+</div>
+
+<!-- MODALS -->
+
+<!-- Add Booking Modal -->
+<div class="modal-overlay" id="modal-booking">
+    <div class="modal">
+        <h3>New Booking</h3>
+        <div class="modal-row"><label>Client Name</label><input type="text" id="bk-client" placeholder="e.g. Tanya Moyo"></div>
+        <div class="modal-row"><label>Service</label><select id="bk-service"></select></div>
+        <div class="modal-row"><label>Date</label><input type="text" id="bk-date" placeholder="e.g. 8 March 2026"></div>
+        <div class="modal-row"><label>Time</label><input type="text" id="bk-time" placeholder="e.g. 10:00 AM"></div>
+        <div class="modal-row"><label>Amount</label><input type="text" id="bk-amount" placeholder="e.g. 15"></div>
+        <div class="modal-row">
+            <label>Status</label>
+            <select id="bk-status"><option value="confirmed">Confirmed</option><option value="pending" selected>Pending</option></select>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-modal-cancel" onclick="closeModal('modal-booking')">Cancel</button>
+            <button class="btn-modal-ok" onclick="saveBooking()">Save Booking</button>
+        </div>
+    </div>
+</div>
+
+<!-- Add Inquiry Modal -->
+<div class="modal-overlay" id="modal-inquiry">
+    <div class="modal">
+        <h3>Add Inquiry</h3>
+        <div class="modal-row"><label>Client Name</label><input type="text" id="iq-client" placeholder="e.g. Farai Ndlovu"></div>
+        <div class="modal-row"><label>Message</label><textarea id="iq-msg" placeholder="What did they ask?"></textarea></div>
+        <div class="modal-row"><label>Time</label><input type="text" id="iq-time" placeholder="e.g. 10 min ago, Yesterday..."></div>
+        <div class="modal-actions">
+            <button class="btn-modal-cancel" onclick="closeModal('modal-inquiry')">Cancel</button>
+            <button class="btn-modal-ok" onclick="saveInquiry()">Save Inquiry</button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Services Modal -->
+<div class="modal-overlay" id="modal-services">
+    <div class="modal">
+        <h3>Edit Services</h3>
+        <div class="services-setup-list" id="edit-svc-list"></div>
+        <button class="btn-add-svc" id="add-edit-svc-btn">+ Add Service</button>
+        <div class="modal-actions">
+            <button class="btn-modal-cancel" onclick="closeModal('modal-services')">Cancel</button>
+            <button class="btn-modal-ok" onclick="saveEditedServices()">Save Services</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast" id="toastEl"></div>
+
+<script>
+// ============================================
+// DATA LAYER
+// ============================================
+
+function load(key, def) {
+    try { 
+        const v = localStorage.getItem(`bizboost_${key}`); 
+        return v ? JSON.parse(v) : def; 
+    } catch { 
+        return def; 
+    }
+}
+
+function save(key, val) { 
+    localStorage.setItem(`bizboost_${key}`, JSON.stringify(val)); 
+}
+
+// Global state
+let BIZ = load('biz', null);
+let SERVICES = load('services', []);
+let BOOKINGS = load('bookings', []);
+let INQUIRIES = load('inquiries', []);
+let CURRENCY = load('currency', 'USD');
+
+function saveBiz() { save('biz', BIZ); }
+function saveServices() { save('services', SERVICES); }
+function saveBookings() { save('bookings', BOOKINGS); }
+function saveInquiries() { save('inquiries', INQUIRIES); }
+function saveCurrency() { save('currency', CURRENCY); }
+
+// ============================================
+// SETUP
+// ============================================
+
+function initSetup() {
+    const list = document.getElementById('su-svc-list');
+    list.innerHTML = '';
+    
+    // Default services
+    const defaults = [
+        { name: 'Custom Birthday Cake', price: 'from $12' },
+        { name: 'Cupcakes (6 pcs)', price: '$6' },
+        { name: 'Hamper Gift Box', price: 'from $10' }
+    ];
+    
+    defaults.forEach(svc => addSetupSvcRow(svc.name, svc.price));
+    
+    // Set currency
+    if (CURRENCY) {
+        document.getElementById('su-currency').value = CURRENCY;
+    }
+}
+
+function addSetupSvcRow(name='', price='') {
+    const list = document.getElementById('su-svc-list');
+    const row = document.createElement('div');
+    row.className = 'svc-setup-row';
+    row.innerHTML = `
+        <input type="text" placeholder="Service name" value="${esc(name)}">
+        <input type="text" placeholder="Price" value="${esc(price)}">
+        <button class="btn-remove" onclick="this.parentElement.remove()" aria-label="Remove service">×</button>
+    `;
+    list.appendChild(row);
+}
+
+function saveSetup() {
+    const name = document.getElementById('su-biz-name').value.trim();
+    const wa = document.getElementById('su-wa-num').value.trim().replace(/\D/g,'');
+    const email = document.getElementById('su-email').value.trim();
+    const loc = document.getElementById('su-location').value.trim();
+    const currency = document.getElementById('su-currency').value;
+
+    if (!name || !wa) { 
+        showToast('Please enter your business name and WhatsApp number'); 
+        return; 
+    }
+
+    const rows = document.querySelectorAll('#su-svc-list .svc-setup-row');
+    const svcs = [];
+    rows.forEach(r => {
+        const inputs = r.querySelectorAll('input');
+        const n = inputs[0].value.trim(), p = inputs[1].value.trim();
+        if (n) svcs.push({ 
+            id: 'svc_' + Date.now() + Math.random().toString(36).substr(2, 9), 
+            name: n, 
+            price: p, 
+            orders: 0,
+            createdAt: new Date().toISOString()
+        });
+    });
+
+    if (!svcs.length) { 
+        showToast('Add at least one service'); 
+        return; 
+    }
+
+    BIZ = { name, wa, email, location: loc };
+    SERVICES = svcs;
+    CURRENCY = currency;
+    
+    saveBiz(); 
+    saveServices();
+    saveCurrency();
+    
+    bootApp();
+}
+
+// ============================================
+// BOOTSTRAP
+// ============================================
+
+function bootApp() {
+    if (!BIZ) {
+        document.getElementById('setup-screen').classList.add('show');
+        document.getElementById('app').style.display = 'none';
+        initSetup();
+        return;
+    }
+
+    document.getElementById('setup-screen').classList.remove('show');
+    document.getElementById('app').style.display = 'block';
+
+    // Update header
+    document.getElementById('header-biz-name').textContent = BIZ.name;
+    document.getElementById('header-location').textContent = (BIZ.location || 'BizBoost Zim');
+    document.getElementById('header-wa-btn').href = `https://wa.me/${BIZ.wa}`;
+
+    renderAll();
+    
+    // Set up event listeners
+    setupEventListeners();
+}
+
+function renderAll() {
+    renderStats();
+    renderPriceList();
+    renderInquiries();
+    renderCalendar();
+    renderFlowServices();
+    renderLinkPanel();
+    renderAnalytics();
+    renderBookingModal();
+    updateCurrencySymbols();
+}
+
+function updateCurrencySymbols() {
+    const symbols = { USD: '$', ZWL: 'ZiG', ZAR: 'R' };
+    const symbol = symbols[CURRENCY] || '$';
+    
+    document.querySelectorAll('.currency-symbol').forEach(el => {
+        el.textContent = symbol;
+    });
+}
+
+// ============================================
+// EVENT LISTENERS
+// ============================================
+
+function setupEventListeners() {
+    // Tab navigation
+    document.querySelectorAll('.nav-item').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tabId = btn.dataset.tab;
+            goTab(tabId, btn);
+        });
+    });
+
+    // Setup buttons
+    document.getElementById('add-service-btn').addEventListener('click', () => addSetupSvcRow());
+    document.getElementById('save-setup-btn').addEventListener('click', saveSetup);
+    
+    // Main app buttons
+    document.getElementById('settings-btn').addEventListener('click', openSettings);
+    document.getElementById('edit-services-btn').addEventListener('click', openEditServices);
+    document.getElementById('add-inquiry-btn').addEventListener('click', openAddInquiry);
+    document.getElementById('new-booking-btn').addEventListener('click', openAddBooking);
+    document.getElementById('open-client-view').addEventListener('click', () => {
+        goTab('flow', document.querySelector('[data-tab="flow"]'));
+    });
+    
+    // Calendar
+    document.getElementById('cal-prev').addEventListener('click', calPrev);
+    document.getElementById('cal-next').addEventListener('click', calNext);
+    
+    // Link panel
+    document.getElementById('copy-link-btn').addEventListener('click', copyLink);
+    document.querySelectorAll('.share-cell').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const platform = e.currentTarget.dataset.platform;
+            const messages = {
+                instagram: 'Paste your link in Instagram bio or Stories',
+                facebook: 'Post the link on your Facebook page',
+                tiktok: 'Add to your TikTok bio link',
+                whatsapp: 'Share to all your WhatsApp contacts via Status'
+            };
+            showToast(messages[platform] || 'Link copied to clipboard!');
+        });
+    });
+    
+    // Edit services modal
+    document.getElementById('add-edit-svc-btn').addEventListener('click', () => addEditSvcRow());
+}
+
+// ============================================
+// STATS
+// ============================================
+
+function getThisMonth() {
+    const now = new Date();
+    return BOOKINGS.filter(b => {
+        const d = new Date(b.createdAt || b.dateISO);
+        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    });
+}
+
+function renderStats() {
+    const mb = getThisMonth();
+    const rev = mb.reduce((s, b) => s + (parseFloat(b.amount) || 0), 0);
+    const unread = INQUIRIES.filter(i => i.status === 'new').length;
+    const pending = BOOKINGS.filter(b => b.status === 'pending').length;
+
+    document.getElementById('stat-bookings').textContent = mb.length;
+    document.getElementById('stat-revenue').textContent = formatCurrency(rev);
+    document.getElementById('stat-inquiries').textContent = unread;
+    document.getElementById('stat-pending').textContent = pending;
+}
+
+// ============================================
+// PRICE LIST
+// ============================================
+
+function renderPriceList() {
+    const el = document.getElementById('price-list');
+    document.getElementById('svc-count').textContent = SERVICES.length + ' items';
+
+    if (!SERVICES.length) {
+        el.innerHTML = '<div class="empty-state">No services yet. Click "Edit Services" to add some.</div>';
+        return;
+    }
+
+    el.innerHTML = SERVICES.map(s => {
+        const orders = BOOKINGS.filter(b => b.service === s.name).length;
+        return `<div class="price-row">
+            <div class="pr-dot"></div>
+            <span class="pr-name">${esc(s.name)}</span>
+            <span class="pr-orders">${orders} order${orders !== 1 ? 's' : ''}</span>
+            <span class="pr-price">${formatPrice(s.price)}</span>
+            <div class="pr-actions">
+                <button class="pr-edit" onclick="quickEditSvc('${s.id}')">edit</button>
+                <button class="pr-del" onclick="deleteSvc('${s.id}')">remove</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function quickEditSvc(id) { 
+    openEditServices(); 
+}
+
+function deleteSvc(id) {
+    if (!confirm('Delete this service? This will not affect existing bookings.')) return;
+    SERVICES = SERVICES.filter(s => String(s.id) !== String(id));
+    saveServices(); 
+    renderPriceList(); 
+    renderFlowServices();
+    showToast('Service removed');
+}
+
+// ============================================
+// INQUIRIES
+// ============================================
+
+function renderInquiries() {
+    const el = document.getElementById('inq-list');
+    const unread = INQUIRIES.filter(i => i.status === 'new').length;
+    document.getElementById('inq-count').textContent = unread ? unread + ' unread' : 'all read';
+
+    if (!INQUIRIES.length) {
+        el.innerHTML = '<div class="empty-state">No inquiries yet.</div>';
+        return;
+    }
+
+    const sorted = [...INQUIRIES].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    el.innerHTML = sorted.map(inq => {
+        const init = (inq.name || '?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+        const isFresh = inq.status === 'new';
+        return `<div class="inq-row ${isFresh ? 'fresh' : ''}" data-id="${inq.id}">
+            <div class="inq-init">${esc(init)}</div>
+            <div class="inq-text">
+                <div class="inq-name">${esc(inq.name)}</div>
+                <div class="inq-msg">${esc(inq.message)}</div>
+            </div>
+            <div class="inq-meta">
+                <div class="inq-time">${esc(inq.time)}</div>
+                ${isFresh ? `<div class="tag-new">New</div>` : `<div class="tag-done">Done ✓</div>`}
+            </div>
+            <div class="inq-actions">
+                ${isFresh ? `<button class="inq-act-btn" onclick="markInqDone('${inq.id}')">Mark done</button>` : ''}
+                <button class="inq-act-btn inq-act-del" onclick="deleteInq('${inq.id}')">Delete</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function markInqDone(id) {
+    const inq = INQUIRIES.find(i => i.id === id);
+    if (inq) { 
+        inq.status = 'done'; 
+        saveInquiries(); 
+        renderInquiries(); 
+        renderStats(); 
+        showToast('Inquiry marked as done');
+    }
+}
+
+function deleteInq(id) {
+    if (!confirm('Delete this inquiry?')) return;
+    INQUIRIES = INQUIRIES.filter(i => i.id !== id);
+    saveInquiries(); 
+    renderInquiries(); 
+    renderStats();
+    showToast('Inquiry deleted');
+}
+
+// ============================================
+// CALENDAR
+// ============================================
+
+let calYear, calMonth;
+
+function initCal() {
+    const now = new Date();
+    calYear = now.getFullYear();
+    calMonth = now.getMonth();
+}
+
+function renderCalendar() {
+    if (calYear === undefined) initCal();
+
+    const now = new Date();
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    document.getElementById('cal-title').textContent = months[calMonth] + ' ' + calYear;
+    document.getElementById('cal-month-label').textContent = months[calMonth].toLowerCase() + ' ' + calYear;
+
+    const firstDay = new Date(calYear, calMonth, 1).getDay();
+    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+    const todayDate = (now.getMonth() === calMonth && now.getFullYear() === calYear) ? now.getDate() : -1;
+
+    // Collect booked days
+    const bookedDays = new Set();
+    BOOKINGS.forEach(b => {
+        try {
+            const d = new Date(b.dateISO || b.createdAt);
+            if (d.getMonth() === calMonth && d.getFullYear() === calYear) bookedDays.add(d.getDate());
+        } catch {}
+    });
+
+    const grid = document.getElementById('calGrid');
+    grid.innerHTML = '';
+
+    for (let i = 0; i < firstDay; i++) {
+        const e = document.createElement('div'); 
+        e.className = 'cd emp'; 
+        grid.appendChild(e);
+    }
+    for (let d = 1; d <= daysInMonth; d++) {
+        const e = document.createElement('div');
+        e.textContent = d;
+        e.setAttribute('data-date', `${calYear}-${calMonth+1}-${d}`);
+        
+        if (d === todayDate) e.className = 'cd tdy';
+        else if (d < todayDate) e.className = 'cd pst';
+        else if (bookedDays.has(d)) e.className = 'cd bkd';
+        else e.className = 'cd avl';
+        
+        grid.appendChild(e);
+    }
+}
+
+function calPrev() { 
+    calMonth--; 
+    if (calMonth < 0) { 
+        calMonth = 11; 
+        calYear--; 
+    } 
+    renderCalendar(); 
+}
+
+function calNext() { 
+    calMonth++; 
+    if (calMonth > 11) { 
+        calMonth = 0; 
+        calYear++; 
+    } 
+    renderCalendar(); 
+}
+
+// ============================================
+// BOOKINGS
+// ============================================
+
+function renderBookingModal() {
+    const sel = document.getElementById('bk-service');
+    if (!sel) return;
+    sel.innerHTML = SERVICES.map(s => `<option value="${esc(s.name)}">${esc(s.name)}</option>`).join('');
+}
+
+function openAddBooking() {
+    document.getElementById('bk-client').value = '';
+    document.getElementById('bk-date').value = '';
+    document.getElementById('bk-time').value = '';
+    document.getElementById('bk-amount').value = '';
+    document.getElementById('bk-status').value = 'pending';
+    renderBookingModal();
+    document.getElementById('modal-booking').classList.add('show');
+}
+
+function saveBooking() {
+    const client = document.getElementById('bk-client').value.trim();
+    const service = document.getElementById('bk-service').value;
+    const date = document.getElementById('bk-date').value.trim();
+    const time = document.getElementById('bk-time').value.trim();
+    const amount = document.getElementById('bk-amount').value.trim();
+    const status = document.getElementById('bk-status').value;
+
+    if (!client || !service || !date) { 
+        showToast('Please fill in client, service and date'); 
+        return; 
+    }
+
+    // Try to parse a date ISO for calendar
+    let dateISO = null;
+    try { 
+        const parsed = new Date(date); 
+        if (!isNaN(parsed)) dateISO = parsed.toISOString(); 
+    } catch {}
+
+    const booking = {
+        id: 'bk_' + Date.now() + Math.random().toString(36).substr(2, 9),
+        client, 
+        service, 
+        date, 
+        time, 
+        amount: parseFloat(amount) || 0, 
+        status,
+        dateISO: dateISO || new Date().toISOString(),
+        createdAt: new Date().toISOString()
+    };
+
+    BOOKINGS.push(booking);
+    saveBookings();
+    closeModal('modal-booking');
+    renderAll();
+    showToast('Booking saved — ' + client);
+}
+
+function deleteBooking(id) {
+    if (!confirm('Delete this booking?')) return;
+    BOOKINGS = BOOKINGS.filter(b => b.id !== id);
+    saveBookings(); 
+    renderAll();
+    showToast('Booking deleted');
+}
+
+// ============================================
+// INQUIRIES - ADD
+// ============================================
+
+function openAddInquiry() {
+    document.getElementById('iq-client').value = '';
+    document.getElementById('iq-msg').value = '';
+    document.getElementById('iq-time').value = 'just now';
+    document.getElementById('modal-inquiry').classList.add('show');
+}
+
+function saveInquiry() {
+    const name = document.getElementById('iq-client').value.trim();
+    const message = document.getElementById('iq-msg').value.trim();
+    const time = document.getElementById('iq-time').value.trim() || 'just now';
+
+    if (!name || !message) { 
+        showToast('Please enter a name and message'); 
+        return; 
+    }
+
+    INQUIRIES.push({ 
+        id: 'iq_' + Date.now() + Math.random().toString(36).substr(2, 9), 
+        name, 
+        message, 
+        time, 
+        status: 'new', 
+        createdAt: new Date().toISOString() 
+    });
+    saveInquiries();
+    closeModal('modal-inquiry');
+    renderInquiries(); 
+    renderStats();
+    showToast('Inquiry added');
+}
+
+// ============================================
+// EDIT SERVICES
+// ============================================
+
+function openEditServices() {
+    const list = document.getElementById('edit-svc-list');
+    list.innerHTML = '';
+    SERVICES.forEach(s => addEditSvcRow(s.name, s.price));
+    document.getElementById('modal-services').classList.add('show');
+}
+
+function addEditSvcRow(name='', price='') {
+    const list = document.getElementById('edit-svc-list');
+    const row = document.createElement('div');
+    row.className = 'svc-setup-row';
+    row.innerHTML = `
+        <input type="text" placeholder="Service name" value="${esc(name)}">
+        <input type="text" placeholder="Price" value="${esc(price)}">
+        <button class="btn-remove" onclick="this.parentElement.remove()">×</button>
+    `;
+    list.appendChild(row);
+}
+
+function saveEditedServices() {
+    const rows = document.querySelectorAll('#edit-svc-list .svc-setup-row');
+    const svcs = [];
+    rows.forEach(r => {
+        const inputs = r.querySelectorAll('input');
+        const n = inputs[0].value.trim(), p = inputs[1].value.trim();
+        if (n) {
+            svcs.push({ 
+                id: 'svc_' + Date.now() + Math.random().toString(36).substr(2, 9),
+                name: n, 
+                price: p, 
+                orders: 0,
+                createdAt: new Date().toISOString()
+            });
+        }
+    });
+    if (!svcs.length) { 
+        showToast('Add at least one service'); 
+        return; 
+    }
+    SERVICES = svcs;
+    saveServices();
+    closeModal('modal-services');
+    renderAll();
+    showToast('Services updated');
+}
+
+// ============================================
+// BOOKING LINK PANEL
+// ============================================
+
+function renderLinkPanel() {
+    if (!BIZ) return;
+    const slug = BIZ.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+    const url = `bizboost.vercel.app/${slug}`;
+    const el = document.getElementById('link-url-field');
+    if (el) el.value = url;
+
+    const waMsg = encodeURIComponent(`Hi! I'd like to place an order with ${BIZ.name}. Could you please share your availability and pricing? Thank you!`);
+    const waUrl = `https://wa.me/${BIZ.wa}?text=${waMsg}`;
+
+    const init = BIZ.name.trim()[0].toUpperCase();
+    const prevInit = document.getElementById('wa-prev-init');
+    const prevName = document.getElementById('wa-prev-name');
+    const prevMsg = document.getElementById('wa-prev-msg');
+    if (prevInit) prevInit.textContent = init;
+    if (prevName) prevName.textContent = BIZ.name;
+    if (prevMsg) prevMsg.innerHTML = `Hi ${BIZ.name.split(' ')[0]}! 👋 I'd like to place an order. Could you share your availability and pricing? Thank you!<div class="wa-time">now ✓✓</div>`;
+}
+
+function copyLink() {
+    const el = document.getElementById('link-url-field');
+    if (el) {
+        navigator.clipboard.writeText('https://' + el.value).catch(() => {
+            // Fallback
+            const textarea = document.createElement('textarea');
+            textarea.value = 'https://' + el.value;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+        });
+        showToast('Link copied — paste it anywhere!');
+    }
+}
+
+// ============================================
+// CLIENT FLOW
+// ============================================
+
+let selSvc = '', selTime = '';
+
+function renderFlowServices() {
+    if (!BIZ) return;
+    const sub = document.getElementById('flow-biz-name-sub');
+    if (sub) sub.textContent = 'Select a service from ' + BIZ.name;
+    const fl = document.getElementById('flow-wa-init');
+    const fn = document.getElementById('flow-wa-name');
+    if (fl) fl.textContent = BIZ.name[0].toUpperCase();
+    if (fn) fn.textContent = BIZ.name;
+
+    const list = document.getElementById('flow-svc-list');
+    if (!list) return;
+
+    if (!SERVICES.length) {
+        list.innerHTML = '<div class="empty-state">No services set up yet.</div>';
+        return;
+    }
+
+    list.innerHTML = SERVICES.map(s => `
+        <div class="svc-pick-row" onclick="pickSvc(this,'${esc(s.name)}','${esc(s.price)}')">
+            <span class="spr-name">${esc(s.name)}</span>
+            <span class="spr-price">${esc(s.price)}</span>
+            <div class="spr-check">✓</div>
+        </div>`).join('');
+
+    renderFlowTimeSlots();
+}
+
+function renderFlowTimeSlots() {
+    const wrap = document.getElementById('flow-time-slots');
+    if (!wrap) return;
+
+    const now = new Date();
+    const times = ['8:00 AM','9:00 AM','10:00 AM','11:00 AM','12:00 PM','2:00 PM','3:00 PM','4:00 PM'];
+    const days = [];
+
+    for (let offset = 0; offset < 7 && days.length < 3; offset++) {
+        const d = new Date(now);
+        d.setDate(d.getDate() + offset + 1);
+        const dayStr = d.toLocaleDateString('en-ZW', { weekday: 'short', day: 'numeric', month: 'short' });
+        const dateISO = d.toISOString().split('T')[0];
+
+        const bookedTimes = new Set(
+            BOOKINGS.filter(b => (b.dateISO || '').startsWith(dateISO)).map(b => b.time)
+        );
+
+        days.push({ label: dayStr, dateISO, times, bookedTimes });
+    }
+
+    wrap.innerHTML = days.map(day => `
+        <div class="time-date-label">${day.label}</div>
+        <div class="time-grid">
+            ${day.times.map(t => {
+                const taken = day.bookedTimes.has(t);
+                return `<div class="tslot${taken ? ' taken' : ''}" ${taken ? '' : `onclick="pickTime(this,'${day.label} · ${t}')"`}>${t}</div>`;
+            }).join('')}
+        </div>`).join('');
+}
+
+function pickSvc(el, name) {
+    document.querySelectorAll('.svc-pick-row').forEach(r => r.classList.remove('sel'));
+    el.classList.add('sel');
+    selSvc = name;
+    document.getElementById('btn1').disabled = false;
+}
+
+function pickTime(el, time) {
+    document.querySelectorAll('.tslot:not(.taken)').forEach(s => s.classList.remove('sel'));
+    el.classList.add('sel');
+    selTime = time;
+    document.getElementById('btn2').disabled = false;
+}
+
+function goStep(n) {
+    document.querySelectorAll('.flow-section').forEach(s => s.classList.remove('on'));
+    document.getElementById('fss' + n).classList.add('on');
+    for (let i = 1; i <= 4; i++) {
+        const step = document.getElementById('fps' + i);
+        step.classList.remove('on', 'done');
+        if (i < n) step.classList.add('done');
+        if (i === n) step.classList.add('on');
+    }
+    if (n === 3) {
+        document.getElementById('mSvc').textContent = selSvc;
+        document.getElementById('mTime').textContent = selTime;
+        const name = BIZ ? BIZ.name.split(' ')[0] : 'Hi';
+        const wa = BIZ ? BIZ.wa : '';
+        const msg = encodeURIComponent(`Hi ${name}! 👋 I'd like to order ${selSvc} for ${selTime}. Please confirm availability and share any details. Thank you!`);
+        document.getElementById('waLink').href = `https://wa.me/${wa}?text=${msg}`;
+        document.getElementById('waLink').onclick = () => {
+            goStep(4);
+            return true;
+        };
+    }
+    if (n === 4) {
+        document.getElementById('rSvc').textContent = selSvc;
+        document.getElementById('rTime').textContent = selTime;
+        const name = BIZ ? BIZ.name : '';
+        document.getElementById('flow-success-msg').textContent = `Your request has been sent to ${name}. You'll get a WhatsApp reply to confirm.`;
+    }
+}
+
+function resetFlow() {
+    selSvc = ''; selTime = '';
+    document.querySelectorAll('.svc-pick-row').forEach(r => r.classList.remove('sel'));
+    document.querySelectorAll('.tslot').forEach(s => s.classList.remove('sel'));
+    const b1 = document.getElementById('btn1'), b2 = document.getElementById('btn2');
+    if (b1) b1.disabled = true;
+    if (b2) b2.disabled = true;
+    renderFlowTimeSlots();
+    goStep(1);
+}
+
+// ============================================
+// ANALYTICS
+// ============================================
+
+function renderAnalytics() {
+    const mb = getThisMonth();
+    const rev = mb.reduce((s, b) => s + (parseFloat(b.amount) || 0), 0);
+    const confirmed = mb.filter(b => b.status === 'confirmed').length;
+    const pending = mb.filter(b => b.status === 'pending').length;
+
+    // Summary
+    const sumEl = document.getElementById('ana-summary');
+    if (sumEl) sumEl.innerHTML = `
+        <div class="bar-row"><span class="bar-name">Total bookings</span><div class="bar-track-wrap"><div class="bar-val" style="text-align:left;font-size:22px;font-family:'Fraunces',serif;font-weight:700;color:var(--ink)">${mb.length}</div></div></div>
+        <div class="bar-row"><span class="bar-name">Revenue</span><div class="bar-track-wrap"><div class="bar-val" style="text-align:left;font-size:22px;font-family:'Fraunces',serif;font-weight:700;color:var(--brick)">${formatCurrency(rev)}</div></div></div>
+        <div class="bar-row"><span class="bar-name">Confirmed</span><div class="bar-track-wrap"><div class="bar-val" style="text-align:left;font-size:22px;font-family:'Fraunces',serif;font-weight:700;color:var(--sage)">${confirmed}</div></div></div>
+        <div class="bar-row"><span class="bar-name">Pending</span><div class="bar-track-wrap"><div class="bar-val" style="text-align:left;font-size:22px;font-family:'Fraunces',serif;font-weight:700;color:var(--muted)">${pending}</div></div></div>
+    `;
+
+    // Service breakdown
+    const counts = {};
+    BOOKINGS.forEach(b => { counts[b.service] = (counts[b.service] || 0) + 1; });
+    const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]);
+    const max = sorted[0]?.[1] || 1;
+
+    const topEl = document.getElementById('ana-top-seller');
+    if (topEl) {
+        if (sorted.length) {
+            const [topName, topCount] = sorted[0];
+            const topRev = BOOKINGS.filter(b => b.service === topName).reduce((s,b) => s + (parseFloat(b.amount)||0), 0);
+            topEl.innerHTML = `<div class="pop-item"><div class="pop-em">🏆</div><div><div class="pop-title">${esc(topName)}</div><div class="pop-detail">${topCount} booking${topCount!==1?'s':''} · ${formatCurrency(topRev)} earned</div></div></div>`;
+        } else {
+            topEl.innerHTML = `<div class="pop-item"><div class="pop-em">📊</div><div><div class="pop-title">No bookings yet</div><div class="pop-detail">Add bookings to see analytics</div></div></div>`;
+        }
+    }
+
+    const barsEl = document.getElementById('ana-svc-bars');
+    if (barsEl) {
+        barsEl.innerHTML = sorted.map(([name, count]) =>
+            `<div class="bar-row">
+                <span class="bar-name">${esc(name.split(' ').slice(0,2).join(' '))}</span>
+                <div class="bar-track-wrap">
+                    <div class="bar-track"><div class="bar-fill" style="width:${(count/max*100).toFixed(0)}%;background:var(--brick)"></div></div>
+                    <div class="bar-val">${count}</div>
+                </div>
+            </div>`).join('');
+    }
+
+    // Ledger
+    const ledgerEl = document.getElementById('ledger-body');
+    const countEl = document.getElementById('ledger-count');
+    if (countEl) countEl.textContent = BOOKINGS.length + ' total';
+    if (ledgerEl) {
+        if (!BOOKINGS.length) {
+            ledgerEl.innerHTML = '<div class="ledger-row" style="grid-template-columns:1fr"><span style="color:var(--muted);font-style:italic">No bookings yet. Click "+ New Booking" on the dashboard.</span></div>';
+            return;
+        }
+        const sorted2 = [...BOOKINGS].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        ledgerEl.innerHTML = sorted2.map(b => `
+            <div class="ledger-row" data-id="${b.id}">
+                <div><div class="lr-name">${esc(b.client)}</div><div class="lr-svc">${esc(b.service)} · ${esc(b.date)}${b.time ? ' · ' + esc(b.time) : ''}</div></div>
+                <div class="lr-svc">${esc(b.service)}</div>
+                <div class="lr-amount">${b.amount ? formatCurrency(b.amount) : '—'}</div>
+                <span class="status-badge ${b.status === 'confirmed' ? 'ok' : 'wait'}">${b.status === 'confirmed' ? 'Confirmed' : 'Pending'}</span>
+                <button class="ledger-del" onclick="deleteBooking('${b.id}')" title="Delete">✕</button>
+            </div>`).join('');
+    }
+}
+
+// ============================================
+// SETTINGS
+// ============================================
+
+function openSettings() {
+    // Pre-fill setup form with current data
+    document.getElementById('su-biz-name').value = BIZ.name || '';
+    document.getElementById('su-wa-num').value = BIZ.wa || '';
+    document.getElementById('su-email').value = BIZ.email || '';
+    document.getElementById('su-location').value = BIZ.location || '';
+    document.getElementById('su-currency').value = CURRENCY || 'USD';
+    
+    const list = document.getElementById('su-svc-list');
+    list.innerHTML = '';
+    SERVICES.forEach(s => addSetupSvcRow(s.name, s.price));
+    
+    document.getElementById('setup-screen').classList.add('show');
+}
+
+// ============================================
+// UTILITIES
+// ============================================
+
+function formatCurrency(amount) {
+    const symbols = { USD: '$', ZWL: 'ZiG', ZAR: 'R' };
+    const symbol = symbols[CURRENCY] || '$';
+    return symbol + parseFloat(amount || 0).toFixed(2);
+}
+
+function formatPrice(price) {
+    // If price already has a currency symbol, use as is
+    if (price.match(/[$RZ]/)) return price;
+    return formatCurrency(parseFloat(price) || 0);
+}
+
+function goTab(id, btn) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('on'));
+    document.getElementById(id).classList.add('on');
+    if (btn) btn.classList.add('on');
+    if (id === 'flow') { resetFlow(); }
+    if (id === 'analytics') renderAnalytics();
+}
+
+function closeModal(id) { 
+    document.getElementById(id).classList.remove('show'); 
+}
+
+function showToast(msg) {
+    const el = document.getElementById('toastEl');
+    el.textContent = msg; 
+    el.classList.add('show');
+    clearTimeout(window._tt);
+    window._tt = setTimeout(() => el.classList.remove('show'), 3200);
+}
+
+function esc(str) {
+    return String(str || '')
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;')
+        .replace(/'/g,'&#039;');
+}
+
+// Close modals on backdrop click
+document.querySelectorAll('.modal-overlay').forEach(m => {
+    m.addEventListener('click', e => { 
+        if (e.target === m) m.classList.remove('show'); 
+    });
+});
+
+// Initialize on load
+window.addEventListener('load', () => {
+    bootApp();
+});
+
+// Handle offline status
+window.addEventListener('offline', () => {
+    showToast('You are offline. Changes will be saved locally.');
+});
+
+window.addEventListener('online', () => {
+    showToast('You are back online!');
+});
+</script>
+</body>
+</html>
